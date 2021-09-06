@@ -1,0 +1,94 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div id="header" class="row row-cols-2">
+        <div class="col">
+            <h2>Listing: {{ listing.title }}
+                {% if not listing.currently_active %}
+                <small>(CLOSED)</small>
+                {% endif %}
+            </h2>
+        </div>
+        <div class="col">
+            {% if listing.currently_active %}
+                {% if on_watchlist %}
+                    <a href="{% url 'watchlist_update' listing.id %}" class="btn btn-primary" style="float:right;">REMOVE FROM WATCHLIST</a>
+                {% else %}
+                    <a href="{% url 'watchlist_update' listing.id %}" class="btn btn-primary" style="float:right;">ADD TO WATCHLIST</a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <div id="image">
+        <img src="{{ listing.img.url }}" class="img-fluid">
+    </div>
+    <div id="main">
+        <div id="description">
+            <h4>Description</h4>
+            <p>{{ listing.description }}</p>
+        </div>
+        <div id=price>
+            <h2>${{ listing.price }}</h2>
+        </div>
+        {% if listing.currently_active %}
+            <div id="bid_close" class="mb-4">
+                {% if creator_view %}
+                    <p>You are the creator of this listing.</p>
+                    <form action="{% url 'close' listing.id %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Close Listing</button>
+                    </form>
+                {% else %}
+                    <form action="{% url 'bid' listing.id %}" method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="bid" class="form-label text-muted mb-0">
+                                {{ bids|length }} bid(s).
+                                {% if winner %}
+                                    Your bid is the current bid.
+                                {% endif %}
+                            </label>
+                            <input type="number" min="{{ min_bid }}" class="form-control" name="amount" placeholder="Place Bid" step=0.01>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Bid</button>
+                    </form>
+                {% endif %}
+            </div>
+        {% else %}
+            {% if winner %}
+                <div id="winner-message" class="mb-3">
+                    <strong>You placed the highest bid on this listing. Now it's yours, congratulations!</strong>
+                </div>
+            {% endif %}
+        {% endif %}
+        <div id="details">
+            <h4>Details</h4>
+            <ul>
+                <li>Creator: {{ listing.creator }}</li>
+                <li>Category: {{ listing.category|capfirst|default:"No Category Listed" }}</li>
+                <li>Post Date: {{ listing.pub_date }}</li>
+                <li>Starting Bid: ${{ listing.starting_bid }}</li>
+            </ul>
+        </div>
+        {% if listing.currently_active %}
+            <div id="comments">
+                <h4 class="border-bottom mb-4 pb-2">Comments <small style="float:right;">{{ comments|length }} comments</small></h4>
+                {% for comment in comments %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <strong>{{ comment.user }}</strong>&emsp;{{ comment.text }}
+                            <span style="float:right;">{{ comment.pub_date|timesince }} ago</span>
+                        </div>
+                    </div>
+                {% endfor %}
+                <form class="mb-3" action="{% url 'comment' listing.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea class="form-control" name="text" rows="3" placeholder="Leave a Comment"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Post</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

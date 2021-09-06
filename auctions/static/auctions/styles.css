@@ -1,0 +1,17 @@
+body {
+    padding: 30px;
+}
+
+#image {
+    width: 25%;
+    margin: auto;
+}
+
+#main {
+    width: 90%;
+    margin: auto;
+}
+
+#winner-message {
+    color:red;
+}

@@ -141,7 +141,6 @@ STATICFILES_DIRS = (
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-
 # URL that handles the media served from MEDIA_ROOT, used for managing stored files.
 # https://docs.djangoproject.com/en/3.2/ref/settings/#media-url
 
